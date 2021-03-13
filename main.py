@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from math import sqrt, pi, exp, pow
+from math import sqrt, pow
 
 
 # #########
@@ -56,7 +56,7 @@ class CalculateVelocities():
             dirac = 0.37*1e1/pow(Re, 1/5)*self.x
             print("Flow Turbulent")
         else:
-            pass
+            dirac = 1
         return Re, np.round(dirac, 3)
 
     def find_dirac(self):
@@ -67,18 +67,27 @@ class CalculateVelocities():
                 return np.round(dirac, 3)
 
 
+def plot_graph(a, b):
+    plt.figure(figsize=(16,9))
+    plt.plot(b.vel / b.u, b.y / b.exp_dirac, linestyle='-.', label="turbulent", marker='^')
+    plt.scatter(b.vel / b.u, b.y / b.exp_dirac, marker='^')
+    plt.plot(a.vel / a.u, a.y / a.exp_dirac,linestyle='-.', label="laminar", marker='s')
+    plt.scatter(a.vel / a.u, a.y / a.exp_dirac, marker='s')
+    plt.title("Velocity profile @ x = "+str(a.x), fontsize=20)
+    plt.xlabel(r"$\frac{u}{U_\infty}$", fontsize=20)
+    plt.ylabel(r"$\frac{y}{\delta}$", fontsize=20)
+    plt.legend(loc = 'upper left')
+    plt.grid()
+    plt.show()
+    # plt.savefig('x'+str(a.x)+'.jpg', format='jpg')
+    # plt.close()
 
 
+b = CalculateVelocities(25, 17)
+a = CalculateVelocities(8, 17)
+c = CalculateVelocities(25, 25)
+d = CalculateVelocities(8, 25)
+plot_graph(a, b)
+plot_graph(d, c)
 
-b = CalculateVelocities(25, 25)
-a = CalculateVelocities(25, 17)
-plt.plot(b.vel, b.y)
-plt.scatter(b.vel, b.y)
-plt.plot([25*.99, 25*.99], [0, 10])
-plt.plot([15, 25*.99], [a.exp_dirac, a.exp_dirac])
-plt.plot([15, 25*.99], [b.exp_dirac, b.exp_dirac])
-plt.plot(a.vel, a.y)
-plt.scatter(a.vel, a.y)
-plt.show()
-print(25*.99)
-print(8*.99)
+
