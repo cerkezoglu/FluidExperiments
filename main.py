@@ -17,9 +17,11 @@ class CalculateVelocities():
         self.y, self.V = self.data_read()
         self.del_pa = self.calibration_eq()
         self.rho = self.calculate_rho()
-        self.vel = self.calculate_vel()
-        self.Re, self.dirac = self.calculate_dirac()
-        print(self.Re, self.dirac)
+        self.vel = np.round(self.calculate_vel(), 6)
+        self.Re, self.theoric_dirac = self.calculate_dirac()
+        self.exp_dirac = self.find_dirac()
+        print("Reynolds: ", self.Re,"Theoric dirac: ", self.theoric_dirac)
+        print("Experimental dirac: ", self.exp_dirac)
 
     def data_read(self):
         dataset = pd.read_table('U'+str(self.u)+'_x'+str(self.x)+'.txt', sep='\s+')
@@ -55,14 +57,28 @@ class CalculateVelocities():
             print("Flow Turbulent")
         else:
             pass
-        return Re, dirac
+        return Re, np.round(dirac, 3)
+
+    def find_dirac(self):
+        u_star = self.u*.99
+        for i in range(len(self.vel)):
+            if self.vel[i] > u_star:
+                dirac = (u_star-self.vel[i-1])* (self.y[i]-self.y[i-1])/(self.vel[i]-self.vel[i-1])+ self.y[i-1]
+                return np.round(dirac, 3)
+
+
+
 
 
 b = CalculateVelocities(25, 25)
 a = CalculateVelocities(25, 17)
 plt.plot(b.vel, b.y)
 plt.scatter(b.vel, b.y)
+plt.plot([25*.99, 25*.99], [0, 10])
+plt.plot([15, 25*.99], [a.exp_dirac, a.exp_dirac])
+plt.plot([15, 25*.99], [b.exp_dirac, b.exp_dirac])
 plt.plot(a.vel, a.y)
 plt.scatter(a.vel, a.y)
 plt.show()
-
+print(25*.99)
+print(8*.99)
