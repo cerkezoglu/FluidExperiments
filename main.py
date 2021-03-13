@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from math import sqrt, pi, exp
+from math import sqrt, pi, exp, pow
 
 
 # #########
@@ -18,8 +18,8 @@ class CalculateVelocities():
         self.del_pa = self.calibration_eq()
         self.rho = self.calculate_rho()
         self.vel = self.calculate_vel()
-        print(self.y)
-        print(self.vel)
+        self.Re, self.dirac = self.calculate_dirac()
+        print(self.Re, self.dirac)
 
     def data_read(self):
         dataset = pd.read_table('U'+str(self.u)+'_x'+str(self.x)+'.txt', sep='\s+')
@@ -44,9 +44,25 @@ class CalculateVelocities():
             vel.append(sqrt(2*self.del_pa[i]/self.rho[i] ))
         return np.array(vel)
 
+    def calculate_dirac(self):
+        k_vis = 0.0000153 # interpolating from Munson @22 Celcius
+        Re = self.u*self.x*1e-2/ k_vis
+        if Re < 1.6e5:
+            dirac = self.x * 5e1 / sqrt(Re)  # dirac mm
+            print("Flow Laminar")
+        elif Re > 2.5e5:
+            dirac = 0.37*1e1/pow(Re, 1/5)*self.x
+            print("Flow Turbulent")
+        else:
+            pass
+        return Re, dirac
 
-b = CalculateVelocities(8, 17)
-a = CalculateVelocities(8, 25)
+
+b = CalculateVelocities(25, 25)
+a = CalculateVelocities(25, 17)
 plt.plot(b.vel, b.y)
+plt.scatter(b.vel, b.y)
 plt.plot(a.vel, a.y)
+plt.scatter(a.vel, a.y)
 plt.show()
+
